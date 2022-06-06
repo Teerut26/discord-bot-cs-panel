@@ -178,7 +178,6 @@ const resolvers = {
     Mutation: {
         addNews: async (parent: any, args: any) => {
             let NewsCollection = await db.collection("news");
-            console.log(args);
 
             let newEmbed = new MessageEmbed();
             newEmbed.setTitle(args.news.title);
@@ -228,7 +227,6 @@ const apolloServer = new ApolloServer({
     resolvers,
     context: async ({ req }) => {
         const session = await getSession({ req });
-        console.log(session)
 
         if (!session) {
             throw new Error("Not authenticated");
