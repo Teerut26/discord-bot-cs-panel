@@ -13,9 +13,10 @@ const Description = styled("textarea")``;
 interface Props {
     channels: ChannelAPI[];
     guildID: string;
+    onRefresh?: () => void;
 }
 
-const Form: React.FC<Props> = ({ channels, guildID }) => {
+const Form: React.FC<Props> = ({ channels, guildID, onRefresh }) => {
     const [SelectChannelKey, setSelectChannelKey] = useState(0);
     const [newsForm, setNewsForm] = useLocalStorage<News>(
         `newsForm@${guildID}`,
@@ -55,6 +56,7 @@ const Form: React.FC<Props> = ({ channels, guildID }) => {
                 variables: {
                     addNews: {
                         title: newsForm.title,
+                        guildID: guildID,
                         channelID: channel.id,
                         description: newsForm.description,
                     },
@@ -64,11 +66,14 @@ const Form: React.FC<Props> = ({ channels, guildID }) => {
                 id: keyToast,
             });
         });
-
+        setTimeout(() => {
+            if (onRefresh) return onRefresh();
+        }, 1000);
         setNewsForm({
             title: "",
             description: "",
         });
+        
     };
 
     return (

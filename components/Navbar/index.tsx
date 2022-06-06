@@ -55,19 +55,6 @@ const Navbar: React.FC<Props> = () => {
                                     </a>
                                 </Navlink>
                             </li>
-                            
-                            <li className="nav-item">
-                                <Navlink href="/webhook">
-                                    <a
-                                        className="nav-link active flex"
-                                        aria-current="page"
-                                        href="/webhook"
-                                    >
-                                        <FontAwesomeIcon icon={faRocket} />{" "}
-                                        Webhook
-                                    </a>
-                                </Navlink>
-                            </li>
                         </ul>
                         <form className="d-flex" role="search">
                             {status === "authenticated" ? (

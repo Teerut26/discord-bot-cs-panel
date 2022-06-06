@@ -129,7 +129,9 @@ function Table(props: TableInterface) {
                                 <tr {...row.getRowProps()}>
                                     {row.cells.map((cell) => {
                                         return (
-                                            <td {...cell.getCellProps()}>{cell.render("Cell")}</td>
+                                            <td {...cell.getCellProps()}>
+                                                <div className="truncate max-w-sm">{cell.render("Cell")}</div>
+                                            </td>
                                         );
                                     })}
                                 </tr>

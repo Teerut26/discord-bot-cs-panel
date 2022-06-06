@@ -7,13 +7,19 @@ import { guildAPI } from "interfaces/guildAPI";
 import styled from "@emotion/styled";
 import tw from "twin.macro";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleNotch, faShield, faSpinner, faUser } from "@fortawesome/free-solid-svg-icons";
+import {
+    faCircleNotch,
+    faShield,
+    faSpinner,
+    faUser,
+} from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/router";
+import Loading from "@/components/Loading";
 
 const Card = styled.div`
     label: Card;
     ${tw`max-w-xl w-full sm:w-[15rem] md:w-[17rem] duration-100 cursor-pointer`}
-    :hover{
+    :hover {
         transform: scale(1.01, 1.01);
     }
 `;
@@ -24,7 +30,7 @@ const Stat = styled.div`
 `;
 
 const Index: React.FC = () => {
-    const route = useRouter()
+    const route = useRouter();
     const [Guilds, setGuilds] = useState<guildAPI[] | undefined>();
 
     const { data, refetch, loading } = useQuery(gql`
@@ -52,7 +58,12 @@ const Index: React.FC = () => {
                     <div className="flex flex-wrap justify-center gap-3 p-3 ">
                         {!loading ? (
                             Guilds?.map((guild, id) => (
-                                <Card onClick={()=>route.push(`/guild/${guild.id}`)} className="card">
+                                <Card
+                                    onClick={() =>
+                                        route.push(`/guild/${guild.id}`)
+                                    }
+                                    className="card"
+                                >
                                     <img
                                         src={
                                             guild.iconURL
@@ -90,9 +101,7 @@ const Index: React.FC = () => {
                                 </Card>
                             ))
                         ) : (
-                            <div className="absolute top-0 bottom-0 right-0 left-0 flex items-center justify-center">
-                                <FontAwesomeIcon icon={faSpinner} spin size="3x" />
-                            </div>
+                            <Loading />
                         )}
                     </div>
                 </WithNavbar>

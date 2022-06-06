@@ -105,6 +105,7 @@ const typeDefs = gql`
     type News {
         id: String
         messageID: String
+        guildID: String
         embeds: [Embeds]
         timestamp: String
     }
@@ -117,6 +118,7 @@ const typeDefs = gql`
     }
     input AddNewsInput {
         title: String
+        guildID: String
         channelID: String
         description: String
     }
@@ -186,6 +188,7 @@ const resolvers = {
 
             await NewsCollection.add({
                 messageID: res.id,
+                guildID: args.news.guildID,
                 embeds: res.embeds,
                 timestamp: res.timestamp,
             });
