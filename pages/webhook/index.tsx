@@ -4,7 +4,7 @@ import { gql, useMutation, useQuery } from "@apollo/client";
 import styled from "@emotion/styled";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { WebhookURL } from "interfaces/webhookUrl";
+import { channelID } from "interfaces/channelID";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -16,8 +16,8 @@ const Container = styled.div`
 interface Props {}
 
 const Webhook: React.FC<Props> = () => {
-    const [WebhookForm, setWebhookForm] = useState<WebhookURL | undefined>();
-    const [WebhookList, setWebhookList] = useState<WebhookURL[] | undefined>();
+    const [WebhookForm, setWebhookForm] = useState<channelID | undefined>();
+    const [WebhookList, setWebhookList] = useState<channelID[] | undefined>();
     const { data, refetch } = useQuery(gql`
         {
             getWebhook {
@@ -68,7 +68,7 @@ const Webhook: React.FC<Props> = () => {
         });
     };
 
-    const onDelete = async (item: WebhookURL) => {
+    const onDelete = async (item: channelID) => {
         const toastId = toast.loading("กำลังลบ | " + item.title);
         await deleteWebhook({
             variables: {
@@ -101,7 +101,7 @@ const Webhook: React.FC<Props> = () => {
                                                 ({
                                                     ...pre,
                                                     title: e.target.value,
-                                                } as WebhookURL)
+                                                } as channelID)
                                         )
                                     }
                                     value={WebhookForm?.title}
@@ -124,7 +124,7 @@ const Webhook: React.FC<Props> = () => {
                                                 ({
                                                     ...pre,
                                                     url: e.target.value,
-                                                } as WebhookURL)
+                                                } as channelID)
                                         )
                                     }
                                     value={WebhookForm?.url}

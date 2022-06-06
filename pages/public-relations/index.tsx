@@ -4,7 +4,7 @@ import { faRefresh } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import RootTable from "components/Table";
 import { News } from "interfaces/news";
-import { WebhookURL } from "interfaces/webhookUrl";
+import { channelID } from "interfaces/channelID";
 import CheckLogin from "layouts/CheckLogin";
 import WithNavbar from "layouts/WithNavbar";
 import { useSession } from "next-auth/react";
@@ -26,15 +26,15 @@ const PublicRelations: React.FC<Props> = () => {
     const [NewsForm, setNewsForm] = useState<News>({
         description: "",
         title: "",
-        webhookURL: "",
+        channelID: "",
     });
-    const [WebhookList, setWebhookList] = useState<WebhookURL[] | undefined>();
+    const [WebhookList, setWebhookList] = useState<channelID[] | undefined>();
     const { data, refetch } = useQuery(gql`
         {
             getNews {
                 id
                 title
-                webhookURL
+                channelID
                 description
                 timestamp
             }
@@ -53,7 +53,7 @@ const PublicRelations: React.FC<Props> = () => {
                 title
                 description
                 timestamp
-                webhookURL
+                channelID
             }
         }
     `);
@@ -77,14 +77,14 @@ const PublicRelations: React.FC<Props> = () => {
     const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (NewsForm.webhookURL === "all") {
+        if (NewsForm.channelID === "all") {
             WebhookList?.map(async (webhook) => {
                 const toastId = toast.loading(
                     `กำลังส่ง channel: ${webhook.title}`
                 );
                 await addNews({
                     variables: {
-                        addNews: { ...NewsForm, webhookURL: webhook.url },
+                        addNews: { ...NewsForm, channelID: webhook.url },
                     },
                 });
                 toast.success(`ส่งสำเร็จ channel: ${webhook.title}`, {
@@ -97,12 +97,12 @@ const PublicRelations: React.FC<Props> = () => {
             return setNewsForm({
                 description: "",
                 title: "",
-                webhookURL: "all",
+                channelID: "all",
             });
         }
 
         if (
-            NewsForm.webhookURL.length === 0 ||
+            NewsForm.channelID.length === 0 ||
             NewsForm.title.length === 0 ||
             NewsForm.description.length === 0
         ) {
@@ -118,7 +118,7 @@ const PublicRelations: React.FC<Props> = () => {
         setNewsForm({
             description: "",
             title: "",
-            webhookURL: NewsForm.webhookURL,
+            channelID: NewsForm.channelID,
         });
         return toast.success("success", {
             id: toastId,
@@ -170,11 +170,11 @@ const PublicRelations: React.FC<Props> = () => {
     ];
 
     const SelectFilter = () => {
-        if (NewsForm.webhookURL === "all") {
+        if (NewsForm.channelID === "all") {
             return setNews2(News);
         }
         let result = News?.filter(
-            (news) => news.webhookURL === NewsForm.webhookURL
+            (news) => news.channelID === NewsForm.channelID
         );
         setNews2(result);
     };
@@ -249,9 +249,9 @@ const PublicRelations: React.FC<Props> = () => {
                                 className="form-select"
                                 required
                                 value={
-                                    NewsForm.webhookURL.length < 1
+                                    NewsForm.channelID.length < 1
                                         ? "null"
-                                        : NewsForm.webhookURL
+                                        : NewsForm.channelID
                                 }
                                 onChange={(e) => {
                                     if (e.target.value !== "null") {
@@ -259,7 +259,7 @@ const PublicRelations: React.FC<Props> = () => {
                                             (pre) =>
                                                 ({
                                                     ...pre,
-                                                    webhookURL: e.target.value,
+                                                    channelID: e.target.value,
                                                 } as News)
                                         );
                                     }

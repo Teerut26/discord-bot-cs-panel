@@ -1,4 +1,4 @@
-export interface WebhookURL {
+export interface channelID {
     id?:string
     title: string;
     url: string;
