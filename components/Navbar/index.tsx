@@ -4,8 +4,13 @@ import React from "react";
 import styled from "@emotion/styled";
 import Navlink from "../NavLink";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBell, faDashboard, faRocket } from "@fortawesome/free-solid-svg-icons";
+import {
+    faBell,
+    faDashboard,
+    faRocket,
+} from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/router";
+import axios from "axios";
 
 const Title = styled.a`
     font-weight: bold;
@@ -17,14 +22,18 @@ const LogoutButton = styled.button`
 interface Props {}
 
 const Navbar: React.FC<Props> = () => {
-    const route = useRouter()
+    const route = useRouter();
     const { status } = useSession();
 
     return (
         <>
             <nav className="navbar navbar-expand-lg bg-light">
                 <div className="container-fluid">
-                    <Title onClick={()=>route.push("/")} className="navbar-brand" href="#">
+                    <Title
+                        onClick={() => route.push("/")}
+                        className="navbar-brand"
+                        href="#"
+                    >
                         Discord Bot CS Panel
                     </Title>
                     <button
@@ -56,10 +65,10 @@ const Navbar: React.FC<Props> = () => {
                                 </Navlink>
                             </li>
                         </ul>
-                        <form className="d-flex" role="search">
+                        <div className="d-flex" role="search">
                             {status === "authenticated" ? (
                                 <LogoutButton
-                                    onClick={() => signOut()}
+                                    onClick={() => signOut({ redirect: false })}
                                     className="btn btn-outline-danger"
                                 >
                                     Logout
@@ -67,7 +76,7 @@ const Navbar: React.FC<Props> = () => {
                             ) : (
                                 ""
                             )}
-                        </form>
+                        </div>
                     </div>
                 </div>
             </nav>

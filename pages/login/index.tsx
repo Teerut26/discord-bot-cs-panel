@@ -34,7 +34,7 @@ const Login: React.FC<Props> = () => {
 
     const onSignIn = async () => {
         setLoading((pre) => !pre);
-        signIn("discord");
+        signIn("discord", { redirect: false });
     };
 
     useEffect(() => {

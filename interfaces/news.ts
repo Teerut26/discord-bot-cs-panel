@@ -9,6 +9,7 @@ export interface Embed {
 export interface News {
     id?: string;
     title: string;
+    channelID?: string;
     messageID?: string;
     guildID?: string;
     embeds?: Embed[];

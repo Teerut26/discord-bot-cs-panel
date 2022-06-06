@@ -1,3 +1,4 @@
+import db from "@/config/firestore";
 import NextAuth from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
 
@@ -7,6 +8,16 @@ export default NextAuth({
         DiscordProvider({
             clientId: process.env.DISCORD_CLIENT_ID as string,
             clientSecret: process.env.DISCORD_CLIENT_SECRET as string,
+            profile: async (profile) => {
+                let userAccessCollection = await db
+                    .collection("userAccess")
+                    .where("id", "==", profile.id)
+                    .get();
+                if (userAccessCollection.size === 0) {
+                    return null;
+                }
+                return profile;
+            },
         }),
     ],
     callbacks: {

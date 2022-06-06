@@ -74,19 +74,13 @@ export default class Discord extends Client {
     }
 
     async deleteMessage(messagesID: string, channelID: string): Promise<void> {
-        return new Promise(async (resolve, reject) => {
-            this.execute();
-            this.on("ready", async () => {
-                try {
-                    let channel = this.channels.cache.get(
-                        channelID
-                    ) as TextChannel;
-                    let res = await channel.messages.delete(messagesID);
-                    resolve(res);
-                } catch (error) {
-                    reject(error);
-                }
-            });
-        });
+        try {
+            await this.restAPI.delete(
+                Routes.channelMessage(channelID, messagesID)
+            );
+            return;
+        } catch (error) {
+            throw error;
+        }
     }
 }

@@ -5,6 +5,7 @@ import { MessageEmbed } from "discord.js";
 import { News } from "interfaces/news";
 import Discord from "modules/Discord";
 import { NextApiRequest, NextApiResponse } from "next";
+import { getSession } from "next-auth/react";
 
 const typeDefs = gql`
     type GuildAPI {
@@ -105,6 +106,7 @@ const typeDefs = gql`
     type News {
         id: String
         messageID: String
+        channelID: String
         guildID: String
         embeds: [Embeds]
         timestamp: String
@@ -176,6 +178,7 @@ const resolvers = {
     Mutation: {
         addNews: async (parent: any, args: any) => {
             let NewsCollection = await db.collection("news");
+            console.log(args);
 
             let newEmbed = new MessageEmbed();
             newEmbed.setTitle(args.news.title);
@@ -188,6 +191,7 @@ const resolvers = {
 
             await NewsCollection.add({
                 messageID: res.id,
+                channelID: args.news.channelID,
                 guildID: args.news.guildID,
                 embeds: res.embeds,
                 timestamp: res.timestamp,
@@ -205,8 +209,8 @@ const resolvers = {
 
             try {
                 await new Discord().deleteMessage(
-                    result.message?.id!,
-                    result.message?.channelId!
+                    result.messageID!,
+                    result.channelID!
                 );
             } catch (error) {}
 
@@ -222,6 +226,20 @@ const resolvers = {
 const apolloServer = new ApolloServer({
     typeDefs,
     resolvers,
+    context: async ({ req }) => {
+        const session = await getSession({ req });
+        console.log(session)
+
+        if (!session) {
+            throw new Error("Not authenticated");
+        }
+
+        if (Date.now() >= new Date(session.expires).getTime() * 1000) {
+            throw new Error("Session expires");
+        }
+
+        return { session };
+    },
     introspection: true,
     plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
 });
