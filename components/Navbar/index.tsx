@@ -5,6 +5,7 @@ import styled from "@emotion/styled";
 import Navlink from "../NavLink";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell, faDashboard, faRocket } from "@fortawesome/free-solid-svg-icons";
+import { useRouter } from "next/router";
 
 const Title = styled.a`
     font-weight: bold;
@@ -16,13 +17,14 @@ const LogoutButton = styled.button`
 interface Props {}
 
 const Navbar: React.FC<Props> = () => {
+    const route = useRouter()
     const { status } = useSession();
 
     return (
         <>
             <nav className="navbar navbar-expand-lg bg-light">
                 <div className="container-fluid">
-                    <Title className="navbar-brand" href="#">
+                    <Title onClick={()=>route.push("/")} className="navbar-brand" href="#">
                         Discord Bot CS Panel
                     </Title>
                     <button
@@ -53,18 +55,7 @@ const Navbar: React.FC<Props> = () => {
                                     </a>
                                 </Navlink>
                             </li>
-                            <li className="nav-item">
-                                <Navlink href="/public-relations">
-                                    <a
-                                        className="nav-link active flex"
-                                        aria-current="page"
-                                        href="/public-relations"
-                                    >
-                                        <FontAwesomeIcon icon={faBell} />{" "}
-                                        ประชาสัมพันธ์
-                                    </a>
-                                </Navlink>
-                            </li>
+                            
                             <li className="nav-item">
                                 <Navlink href="/webhook">
                                     <a

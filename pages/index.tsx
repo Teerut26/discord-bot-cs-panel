@@ -8,10 +8,14 @@ import styled from "@emotion/styled";
 import tw from "twin.macro";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleNotch, faShield, faSpinner, faUser } from "@fortawesome/free-solid-svg-icons";
+import { useRouter } from "next/router";
 
 const Card = styled.div`
     label: Card;
-    ${tw`max-w-xl w-full sm:w-[15rem] md:w-[17rem]`}
+    ${tw`max-w-xl w-full sm:w-[15rem] md:w-[17rem] duration-100 cursor-pointer`}
+    :hover{
+        transform: scale(1.01, 1.01);
+    }
 `;
 
 const Stat = styled.div`
@@ -20,6 +24,7 @@ const Stat = styled.div`
 `;
 
 const Index: React.FC = () => {
+    const route = useRouter()
     const [Guilds, setGuilds] = useState<guildAPI[] | undefined>();
 
     const { data, refetch, loading } = useQuery(gql`
@@ -44,10 +49,10 @@ const Index: React.FC = () => {
         <>
             <CheckLogin>
                 <WithNavbar>
-                    <div className="flex flex-wrap justify-center gap-3 p-3">
+                    <div className="flex flex-wrap justify-center gap-3 p-3 ">
                         {!loading ? (
                             Guilds?.map((guild, id) => (
-                                <Card className="card">
+                                <Card onClick={()=>route.push(`/guild/${guild.id}`)} className="card">
                                     <img
                                         src={
                                             guild.iconURL

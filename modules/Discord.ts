@@ -1,3 +1,4 @@
+import { REST } from "@discordjs/rest";
 import {
     Client,
     Collection,
@@ -9,7 +10,14 @@ import {
     TextChannel,
     WebhookClient,
 } from "discord.js";
+import { Routes } from "discord-api-types/v10";
+import { ChannelAPI } from "interfaces/ChannelAPI";
+import { messageResponse } from "interfaces/messageResponse";
+
 export default class Discord extends Client {
+    public restAPI: REST = new REST({ version: "10" }).setToken(
+        process.env.BOT_TOKEN as string
+    );
     constructor() {
         super({
             intents: [
@@ -37,37 +45,32 @@ export default class Discord extends Client {
         });
     }
 
-    getChannels(
-        guildID: string
-    ): Promise<Collection<string, GuildBasedChannel>> {
-        return new Promise(async (resolve, reject) => {
-            this.execute();
-            this.on("ready", async () => {
-                try {
-                    let guild = await this.guilds.fetch(guildID);
-                    resolve(guild.channels.cache);
-                } catch (error) {
-                    reject(error);
-                }
-            });
-        });
+    async getChannels(guildID: string): Promise<ChannelAPI[]> {
+        try {
+            let result = await this.restAPI.get(Routes.guildChannels(guildID));
+            return result as ChannelAPI[];
+        } catch (error) {
+            throw error;
+        }
     }
 
-    async sendMessage(embeds: MessageEmbed[], channelID: string):Promise<Message<boolean>> {
-        return new Promise(async (resolve, reject) => {
-            this.execute();
-            this.on("ready", async () => {
-                try {
-                    let channel = this.channels.cache.get(
-                        channelID
-                    ) as TextChannel;
-                    let res = await channel.send({ embeds });
-                    resolve(res);
-                } catch (error) {
-                    reject(error);
+    async sendMessage(
+        embeds: MessageEmbed[],
+        channelID: string
+    ): Promise<messageResponse> {
+        try {
+            let result = await this.restAPI.post(
+                Routes.channelMessages(channelID),
+                {
+                    body: {
+                        embeds: embeds,
+                    },
                 }
-            });
-        });
+            );
+            return result as messageResponse;
+        } catch (error) {
+            throw error;
+        }
     }
 
     async deleteMessage(messagesID: string, channelID: string): Promise<void> {

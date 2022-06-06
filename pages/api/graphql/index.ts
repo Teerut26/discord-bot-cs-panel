@@ -63,25 +63,49 @@ const typeDefs = gql`
         features: [String]
     }
 
-    type Author {
-        avatar: String
+    type PermissionOverwrites {
         id: String
-        discriminator: String
-        bot: Boolean
-        username: String
+        type: Int
+        allow: String
+        deny: String
+    }
+
+    type Channel {
+        id: String
+        last_message_id: String
+        type: Int
+        name: String
+        position: Int
+        flags: Int
+        parent_id: String
+        topic: String
+        guild_id: String
+        last_pin_timestamp: String
+        rate_limit_per_user: Int
+        nsfw: Boolean
+        permission_overwrites: [PermissionOverwrites]
     }
 
     type Embeds {
+        type: String
         title: String
         description: String
-        type: String
+    }
+
+    type Author {
+        id: String
+        username: String
+        avatar: String
+        avatar_decoration: String
+        discriminator: String
+        public_flags: Int
+        bot: Boolean
     }
 
     type News {
         id: String
-        title: String
-        description: String
-        channelID: String
+        messageID: String
+        embeds: [Embeds]
         timestamp: String
     }
     type AddNewsRespone {
@@ -101,6 +125,7 @@ const typeDefs = gql`
     }
 
     type Query {
+        getChannel(guildID: String!): [Channel]
         getGuild: [GuildAPI]
         getNews: [News]
     }
@@ -113,6 +138,11 @@ const typeDefs = gql`
 
 const resolvers = {
     Query: {
+        getChannel: async (parent: any, args: any) => {
+            let discord = new Discord();
+            let result = await discord.getChannels(args.guildID);
+            return result.filter((channel) => channel.type === 0);
+        },
         getGuild: async () => {
             let discord = new Discord();
             let result = await discord.getGuilds();
@@ -143,31 +173,27 @@ const resolvers = {
     },
     Mutation: {
         addNews: async (parent: any, args: any) => {
-            let timestamp = new Date().toJSON();
-            let newsCollection = await db.collection("news");
+            let NewsCollection = await db.collection("news");
 
             let newEmbed = new MessageEmbed();
             newEmbed.setTitle(args.news.title);
             newEmbed.setDescription(args.news.description);
 
-            let webhookResult = await new Discord().sendMessage(
+            let res = await new Discord().sendMessage(
                 [newEmbed],
                 args.news.channelID
             );
 
-            await newsCollection.add({
-                description: args.news.description,
-                message: webhookResult.toJSON(),
-                title: args.news.title,
-                timestamp: timestamp,
-            } as News);
+            await NewsCollection.add({
+                messageID: res.id,
+                embeds: res.embeds,
+                timestamp: res.timestamp,
+            });
 
             return {
                 description: args.news.description,
                 channelID: args.news.channelID,
-                channel: args.news.webhookResult,
                 title: args.news.title,
-                timestamp: timestamp,
             };
         },
         deleteNews: async (parent: any, args: any) => {
