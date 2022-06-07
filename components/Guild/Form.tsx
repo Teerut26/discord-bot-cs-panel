@@ -123,14 +123,6 @@ const Form: React.FC<Props> = ({ channels, guildID, onRefresh, guildInfo }) => {
         setImageUrlList(oldDataWithoutSelf);
     };
 
-    useMemo(() => {
-        if (newsForm.description.match(/@$/gm)) {
-            setShowRolesOption(true);
-        } else {
-            setShowRolesOption(false);
-        }
-    }, [newsForm]);
-
     useEffect(() => {
         console.log(
             ImageUrlList.map((item) => item.url).filter(
