@@ -13,6 +13,7 @@ import {
 import { Routes } from "discord-api-types/v10";
 import { ChannelAPI } from "interfaces/ChannelAPI";
 import { messageResponse } from "interfaces/messageResponse";
+import { GuildResponse } from "interfaces/GuildResponse";
 
 export default class Discord extends Client {
     public restAPI: REST = new REST({ version: "10" }).setToken(
@@ -49,6 +50,15 @@ export default class Discord extends Client {
         try {
             let result = await this.restAPI.get(Routes.guildChannels(guildID));
             return result as ChannelAPI[];
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async getGuildInfo(guildID: string): Promise<GuildResponse> {
+        try {
+            let result = await this.restAPI.get(Routes.guild(guildID));
+            return result as GuildResponse;
         } catch (error) {
             throw error;
         }

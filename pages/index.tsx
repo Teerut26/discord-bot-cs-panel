@@ -67,7 +67,7 @@ const Index: React.FC = () => {
                                     <img
                                         src={
                                             guild.iconURL
-                                                ? guild.iconURL
+                                                ? guild.iconURL + "?size=512"
                                                 : "/avatar.png"
                                         }
                                         className="card-img-top "

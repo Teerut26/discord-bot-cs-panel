@@ -3,14 +3,20 @@ import History from "@/components/Guild/History";
 import Loading from "@/components/Loading";
 import CheckLogin from "@/layouts/CheckLogin";
 import WithNavbar from "@/layouts/WithNavbar";
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { gql, useQuery } from "@apollo/client";
+import { css } from "@emotion/css";
 import styled from "@emotion/styled";
-import { faRefresh, faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { faDiscord } from "@fortawesome/free-brands-svg-icons";
+import {
+    faRefresh,
+    faServer,
+    faShieldAlt,
+    faSpinner,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ChannelAPI } from "interfaces/ChannelAPI";
+import { GuildResponse } from "interfaces/GuildResponse";
 import { News } from "interfaces/news";
-import { AppContext } from "next/app";
-import { AppContextType } from "next/dist/shared/lib/utils";
 import React, { useMemo, useState } from "react";
 import tw from "twin.macro";
 
@@ -27,6 +33,7 @@ export async function getServerSideProps(context: any) {
 const Guild: React.FC<Props> = ({ guildID }) => {
     const [channels, setChannels] = useState<ChannelAPI[] | undefined>();
     const [NewsList, setNewsList] = useState<News[] | undefined>();
+    const [guildInfo, setGuildInfo] = useState<GuildResponse | undefined>();
 
     const { loading, error, data, refetch } = useQuery(
         gql`
@@ -34,6 +41,16 @@ const Guild: React.FC<Props> = ({ guildID }) => {
                 getChannel(guildID: $guildID) {
                     id
                     name
+                }
+                getGuildInfo(guildID: $guildID) {
+                    id
+                    name
+                    icon
+                    region
+                    description
+                    roles {
+                        name
+                    }
                 }
                 getNews {
                     id
@@ -56,12 +73,13 @@ const Guild: React.FC<Props> = ({ guildID }) => {
     useMemo(() => {
         if (data) {
             setChannels(data.getChannel);
+            setGuildInfo(data.getGuildInfo);
             setNewsList(data.getNews);
         }
     }, [data]);
 
     const Title = styled.div`
-        ${tw`text-xl font-bold`}
+        ${tw`text-xl items-center flex gap-2 font-bold`}
     `;
     const Container = styled.div`
         ${tw`flex flex-col w-full gap-3`}
@@ -72,7 +90,37 @@ const Guild: React.FC<Props> = ({ guildID }) => {
             <WithNavbar>
                 {!loading ? (
                     <>
-                        <div className="w-full py-10 px-3">sdfsdf</div>
+                        <div
+                            className={css(
+                                tw`w-full flex flex-col md:flex-row items-center justify-center gap-3 py-5 px-3 `
+                            )}
+                        >
+                            <img
+                                src={
+                                    guildInfo?.icon
+                                        ? `https://cdn.discordapp.com/icons/${guildInfo?.id}/${guildInfo?.icon}.webp?size=512`
+                                        : "/avatar.png"
+                                }
+                                alt=""
+                                className={css(
+                                    tw`max-w-[10rem] duration-150 md:max-w-[8rem]`
+                                )}
+                            />
+                            <div className="flex flex-col">
+                                <Title>
+                                    <FontAwesomeIcon icon={faDiscord} />
+                                    {guildInfo?.name}
+                                </Title>
+                                <Title>
+                                    <FontAwesomeIcon icon={faServer} />
+                                    {guildInfo?.region}
+                                </Title>
+                                <Title>
+                                    <FontAwesomeIcon icon={faShieldAlt} />
+                                    {guildInfo?.roles.length}
+                                </Title>
+                            </div>
+                        </div>
                         <div className="flex flex-col md:flex-row gap-5 p-3 w-full">
                             <Container>
                                 <Title>เพิ่มข่าว</Title>

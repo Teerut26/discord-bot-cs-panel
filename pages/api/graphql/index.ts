@@ -103,6 +103,60 @@ const typeDefs = gql`
         bot: Boolean
     }
 
+    type Roles {
+        id: String
+        name: String
+        permissions: String
+        position: Int
+        color: Int
+        hoist: Boolean
+        managed: Boolean
+        mentionable: Boolean
+        icon: String
+        unicode_emoji: String
+        flags: Int
+    }
+
+    type GuildInfo {
+        id: String
+        name: String
+        icon: String
+        description: String
+        splash: String
+        discovery_splash: String
+        banner: String
+        owner_id: String
+        application_id: String
+        region: String
+        afk_channel_id: String
+        afk_timeout: Int
+        system_channel_id: String
+        widget_enabled: Boolean
+        widget_channel_id: String
+        verification_level: Int
+        default_message_notifications: Int
+        mfa_level: Int
+        explicit_content_filter: Int
+        max_presences: String
+        max_members: Int
+        max_video_channel_users: Int
+        vanity_url_code: String
+        premium_tier: Int
+        premium_subscription_count: Int
+        system_channel_flags: Int
+        preferred_locale: String
+        rules_channel_id: String
+        public_updates_channel_id: String
+        hub_type: String
+        premium_progress_bar_enabled: Boolean
+        nsfw: Boolean
+        nsfw_level: Int
+        roles: [Roles]
+        stickers: [String]
+        emojis: [String]
+        features: [String]
+    }
+
     type News {
         id: String
         messageID: String
@@ -130,6 +184,7 @@ const typeDefs = gql`
 
     type Query {
         getChannel(guildID: String!): [Channel]
+        getGuildInfo(guildID: String!): GuildInfo
         getGuild: [GuildAPI]
         getNews: [News]
     }
@@ -142,6 +197,11 @@ const typeDefs = gql`
 
 const resolvers = {
     Query: {
+        getGuildInfo: async (parent: any, args: any) => {
+            let discord = new Discord();
+            let result = await discord.getGuildInfo(args.guildID);
+            return result
+        },
         getChannel: async (parent: any, args: any) => {
             let discord = new Discord();
             let result = await discord.getChannels(args.guildID);
@@ -228,13 +288,13 @@ const apolloServer = new ApolloServer({
     context: async ({ req }) => {
         const session = await getSession({ req });
 
-        if (!session) {
-            throw new Error("Not authenticated");
-        }
+        // if (!session) {
+        //     throw new Error("Not authenticated");
+        // }
 
-        if (Date.now() >= new Date(session.expires).getTime() * 1000) {
-            throw new Error("Session expires");
-        }
+        // if (Date.now() >= new Date(session.expires).getTime() * 1000) {
+        //     throw new Error("Session expires");
+        // }
 
         return { session };
     },
