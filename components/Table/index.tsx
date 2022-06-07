@@ -94,7 +94,7 @@ function Table(props: TableInterface) {
                 </div>
             </div>
             <div className="overflow-x-auto">
-                <table className={`table table-striped`}>
+                <table className={`table table-striped table-bordered`}>
                     <thead>
                         {headerGroups.map((headerGroup) => (
                             <tr {...headerGroup.getHeaderGroupProps()}>
@@ -130,7 +130,7 @@ function Table(props: TableInterface) {
                                     {row.cells.map((cell) => {
                                         return (
                                             <td {...cell.getCellProps()}>
-                                                <div className="truncate max-w-sm">{cell.render("Cell")}</div>
+                                                <div className="truncate ">{cell.render("Cell")}</div>
                                             </td>
                                         );
                                     })}

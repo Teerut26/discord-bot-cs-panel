@@ -7,6 +7,7 @@ import {
     GuildMember,
     Intents,
     Message,
+    MessageAttachment,
     MessageEmbed,
     OAuth2Guild,
     TextChannel,
@@ -87,21 +88,40 @@ export default class Discord extends Client {
 
     async sendMessage(
         embeds: MessageEmbed[],
+        imageURLs: string[],
         channelID: string
-    ): Promise<messageResponse> {
-        try {
-            let result = await this.restAPI.post(
-                Routes.channelMessages(channelID),
-                {
-                    body: {
+    ): Promise<Message> {
+        return new Promise(async (resolve, reject) => {
+            this.execute();
+            this.on("ready", async () => {
+                try {
+                    let resutl = (await this.channels.cache.get(
+                        channelID
+                    )) as TextChannel;
+                    let res = await resutl.send({
                         embeds: embeds,
-                    },
+                        files:[...imageURLs]
+                    });
+                    resolve(res);
+                } catch (error) {
+                    reject(error);
                 }
-            );
-            return result as messageResponse;
-        } catch (error) {
-            throw error;
-        }
+            });
+        });
+        // try {
+        //     let result = await this.restAPI.post(
+        //         Routes.channelMessages(channelID),
+        //         {
+        //             body: {
+        //                 embeds: embeds,
+        //                 files: ['https://cdn.discordapp.com/icons/574794024712405003/53dd1a2e3cd881c54a1c30c07b80484c.webp?size=512']
+        //             },
+        //         }
+        //     );
+        //     return result as messageResponse;
+        // } catch (error) {
+        //     throw error;
+        // }
     }
 
     async deleteMessage(messagesID: string, channelID: string): Promise<void> {

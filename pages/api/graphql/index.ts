@@ -201,6 +201,7 @@ const typeDefs = gql`
         title: String
         guildID: String
         channelID: String
+        imageURL: [String]
         description: String
     }
     type DeleteNewsRespone {
@@ -228,7 +229,6 @@ const resolvers = {
             let result = await discord.getMembers(args.option.guildID, {
                 ...args.option,
             });
-            console.log(JSON.parse(JSON.stringify(result)))
             return JSON.parse(JSON.stringify(result));
         },
         getGuildInfo: async (parent: any, args: any) => {
@@ -272,6 +272,7 @@ const resolvers = {
     Mutation: {
         addNews: async (parent: any, args: any) => {
             let NewsCollection = await db.collection("news");
+            console.log(args.news.imageURL);
 
             let newEmbed = new MessageEmbed();
             newEmbed.setTitle(args.news.title);
@@ -279,15 +280,21 @@ const resolvers = {
 
             let res = await new Discord().sendMessage(
                 [newEmbed],
+                args.news.imageURL,
                 args.news.channelID
             );
+            console.log(JSON.parse(JSON.stringify(res)));
 
             await NewsCollection.add({
                 messageID: res.id,
                 channelID: args.news.channelID,
                 guildID: args.news.guildID,
-                embeds: res.embeds,
-                timestamp: res.timestamp,
+                embeds: res.embeds.map((item) => ({
+                    type: item.type,
+                    title: item.title,
+                    description: item.description,
+                })),
+                timestamp: new Date().toJSON(),
             });
 
             return {

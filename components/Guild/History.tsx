@@ -23,27 +23,24 @@ const History: React.FC<Props> = ({ newsList, onRefresh }) => {
             <RootTable
                 columns={[
                     {
-                        Header: "ชื่อเรื่อง",
-                        accessor: (data: any) => data.embeds[0]?.title,
-                    },
-                    {
-                        Header: "รายละเอียด",
-                        accessor: (data: any) => data.embeds[0]?.description,
-                    },
-                    {
                         Header: "Action",
                         accessor: (data: any) => (
                             <Button
                                 onClick={async () => {
-                                    let keyDelete = toast.loading(`กำลังลบ ${data.embeds[0]?.title}`)
+                                    let keyDelete = toast.loading(
+                                        `กำลังลบ ${data.embeds[0]?.title}`
+                                    );
                                     await deleteNews({
                                         variables: {
                                             id: data.id,
                                         },
                                     });
-                                    toast.success(`กำลังลบ ${data.embeds[0]?.title}`,{
-                                        id:keyDelete
-                                    })
+                                    toast.success(
+                                        `กำลังลบ ${data.embeds[0]?.title}`,
+                                        {
+                                            id: keyDelete,
+                                        }
+                                    );
                                     if (onRefresh) return onRefresh();
                                 }}
                                 variant="contained"
@@ -52,6 +49,14 @@ const History: React.FC<Props> = ({ newsList, onRefresh }) => {
                                 ลบ
                             </Button>
                         ),
+                    },
+                    {
+                        Header: "ชื่อเรื่อง",
+                        accessor: (data: any) => data.embeds[0]?.title,
+                    },
+                    {
+                        Header: "รายละเอียด",
+                        accessor: (data: any) => data.embeds[0]?.description,
                     },
                 ]}
                 data={newsList}

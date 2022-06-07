@@ -1,5 +1,7 @@
 import Form from "@/components/Guild/Form";
 import History from "@/components/Guild/History";
+import MemberList from "@/components/Guild/MemberList";
+import RoleList from "@/components/Guild/RoleList";
 import Loading from "@/components/Loading";
 import CheckLogin from "@/layouts/CheckLogin";
 import WithNavbar from "@/layouts/WithNavbar";
@@ -83,7 +85,7 @@ const Guild: React.FC<Props> = ({ guildID }) => {
         ${tw`text-xl items-center flex gap-2 font-bold`}
     `;
     const Container = styled.div`
-        ${tw`flex flex-col w-full gap-3`}
+        ${tw`flex flex-col w-full gap-3 w-full md:w-1/2 border-2 p-3 `}
     `;
 
     return (
@@ -93,7 +95,7 @@ const Guild: React.FC<Props> = ({ guildID }) => {
                     <>
                         <div
                             className={css(
-                                tw`w-full flex flex-col md:flex-row items-center justify-center gap-3 py-5 px-3 `
+                                tw`w-full flex flex-col sm:flex-row items-center justify-center gap-3 py-5 px-3 `
                             )}
                         >
                             <img
@@ -122,7 +124,13 @@ const Guild: React.FC<Props> = ({ guildID }) => {
                                 </Title>
                             </div>
                         </div>
-                        <div className="flex flex-col md:flex-row gap-5 p-3 w-full">
+                        <div className="px-3">
+                            <div className="flex flex-wrap justify-center gap-3 w-full border-2 p-3 ">
+                                <MemberList id="MemberList" guildID={guildID!} />
+                                <RoleList id="RoleList" roles={guildInfo?.roles!} />
+                            </div>
+                        </div>
+                        <div className="flex flex-col md:flex-row gap-3 p-3 w-full">
                             <Container>
                                 <Title>เพิ่มข่าว</Title>
                                 {channels ? (

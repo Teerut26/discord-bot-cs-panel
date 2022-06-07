@@ -3,11 +3,10 @@ import { css } from "@emotion/css";
 import styled from "@emotion/styled";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Warning } from "@mui/icons-material";
-import { Button, TextareaAutosize, TextField } from "@mui/material";
+import { Button, TextField } from "@mui/material";
 import { ChannelAPI } from "interfaces/ChannelAPI";
 import { News } from "interfaces/news";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import tw from "twin.macro";
 import { useLocalStorage } from "usehooks-ts";
@@ -32,12 +31,12 @@ interface Props {
 
 interface ImageURL {
     url: string;
-    uuid: string;
+    uuid?: string;
 }
 
 const Form: React.FC<Props> = ({ channels, guildID, onRefresh, guildInfo }) => {
     const [SelectChannelKey, setSelectChannelKey] = useState(0);
-    const [ImageUrlList, setImageUrlList] = useState<ImageURL[]>([]);
+    const [ImageUrlList, setImageUrlList] = useLocalStorage<ImageURL[]>(`newsForm@ImageUrl@${guildID}`,[]);
     const [newsForm, setNewsForm] = useLocalStorage<News>(
         `newsForm@${guildID}`,
         {
@@ -74,6 +73,9 @@ const Form: React.FC<Props> = ({ channels, guildID, onRefresh, guildInfo }) => {
 
         ChannelSelect.map(async (channel) => {
             let keyToast = toast.loading(`กำลังส่ง ${channel.name}`);
+            let images = ImageUrlList.map((item) => item.url).filter(
+                (item) => item.length !== 0
+            );
             await addNews({
                 variables: {
                     addNews: {
@@ -81,6 +83,7 @@ const Form: React.FC<Props> = ({ channels, guildID, onRefresh, guildInfo }) => {
                         guildID: guildID,
                         channelID: channel.id,
                         description: newsForm.description,
+                        imageURL: images,
                     },
                 },
             });
@@ -91,10 +94,10 @@ const Form: React.FC<Props> = ({ channels, guildID, onRefresh, guildInfo }) => {
         setTimeout(() => {
             if (onRefresh) return onRefresh();
         }, 1000);
-        setNewsForm({
-            title: "",
-            description: "",
-        });
+        // setNewsForm({
+        //     title: "",
+        //     description: "",
+        // });
     };
 
     const Mention = (text: string) => {
@@ -127,6 +130,14 @@ const Form: React.FC<Props> = ({ channels, guildID, onRefresh, guildInfo }) => {
             setShowRolesOption(false);
         }
     }, [newsForm]);
+
+    useEffect(() => {
+        console.log(
+            ImageUrlList.map((item) => item.url).filter(
+                (item) => item.length !== 0
+            )
+        );
+    }, [ImageUrlList]);
 
     return (
         <>
@@ -237,6 +248,7 @@ const Form: React.FC<Props> = ({ channels, guildID, onRefresh, guildInfo }) => {
                             <input
                                 className="form-control"
                                 type="text"
+                                value={item.url}
                                 placeholder="Image URL"
                                 onChange={(e) => handleFormChange(id, e)}
                             />
