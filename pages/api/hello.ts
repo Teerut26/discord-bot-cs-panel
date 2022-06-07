@@ -12,7 +12,8 @@ export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse
 ) {
-    let result = await rest.get(Routes.guild("962930543534698526"));
-    console.log(JSON.stringify(result));
-    res.status(200).send("55555");
+    let discord = new Discord()
+    let result = await discord.getMembers("962930543534698526",{query:"Hol"})
+    console.log(JSON.parse(JSON.stringify(result)))
+    res.status(200).json(result);
 }

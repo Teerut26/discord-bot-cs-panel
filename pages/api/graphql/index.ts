@@ -157,6 +157,31 @@ const typeDefs = gql`
         features: [String]
     }
 
+    type MemberResponse {
+        guildId: String
+        joinedTimestamp: Int
+        premiumSinceTimestamp: String
+        nickname: String
+        pending: Boolean
+        communicationDisabledUntilTimestamp: String
+        userId: String
+        avatar: String
+        displayName: String
+        avatarURL: String
+        displayAvatarURL: String
+        roles: [String]
+    }
+
+    input MemberResponseInput {
+        guildID: String!
+        query: String
+        limit: Int
+        withPresences: Boolean
+        time: Int
+        nonce: String
+        force: Boolean
+    }
+
     type News {
         id: String
         messageID: String
@@ -185,6 +210,7 @@ const typeDefs = gql`
     type Query {
         getChannel(guildID: String!): [Channel]
         getGuildInfo(guildID: String!): GuildInfo
+        getMember(option: MemberResponseInput!): [MemberResponse]
         getGuild: [GuildAPI]
         getNews: [News]
     }
@@ -197,10 +223,18 @@ const typeDefs = gql`
 
 const resolvers = {
     Query: {
+        getMember: async (parent: any, args: any) => {
+            let discord = new Discord();
+            let result = await discord.getMembers(args.option.guildID, {
+                ...args.option,
+            });
+            console.log(JSON.parse(JSON.stringify(result)))
+            return JSON.parse(JSON.stringify(result));
+        },
         getGuildInfo: async (parent: any, args: any) => {
             let discord = new Discord();
             let result = await discord.getGuildInfo(args.guildID);
-            return result
+            return result;
         },
         getChannel: async (parent: any, args: any) => {
             let discord = new Discord();

@@ -50,6 +50,7 @@ const Guild: React.FC<Props> = ({ guildID }) => {
                     description
                     roles {
                         name
+                        id
                     }
                 }
                 getNews {
@@ -126,6 +127,7 @@ const Guild: React.FC<Props> = ({ guildID }) => {
                                 <Title>เพิ่มข่าว</Title>
                                 {channels ? (
                                     <Form
+                                        guildInfo={guildInfo!}
                                         onRefresh={() => {
                                             refetch();
                                         }}

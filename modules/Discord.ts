@@ -2,7 +2,9 @@ import { REST } from "@discordjs/rest";
 import {
     Client,
     Collection,
+    FetchMembersOptions,
     GuildBasedChannel,
+    GuildMember,
     Intents,
     Message,
     MessageEmbed,
@@ -24,7 +26,8 @@ export default class Discord extends Client {
             intents: [
                 Intents.FLAGS.GUILDS,
                 Intents.FLAGS.GUILD_MESSAGES,
-                Intents.FLAGS.GUILD_VOICE_STATES, // <= Don't miss this :)
+                Intents.FLAGS.GUILD_MEMBERS,
+                Intents.FLAGS.GUILD_VOICE_STATES,
             ],
         });
     }
@@ -39,6 +42,24 @@ export default class Discord extends Client {
             this.on("ready", async () => {
                 try {
                     resolve(this.guilds.fetch());
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        });
+    }
+
+    getMembers(
+        guildID: string,
+        option: FetchMembersOptions | undefined = undefined
+    ): Promise<Collection<string, GuildMember> | undefined> {
+        return new Promise(async (resolve, reject) => {
+            this.execute();
+            this.on("ready", async () => {
+                try {
+                    let resutl = await this.guilds.cache.get(guildID);
+                    let members = await resutl?.members.fetch(option);
+                    resolve(members);
                 } catch (error) {
                     reject(error);
                 }
