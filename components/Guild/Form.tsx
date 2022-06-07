@@ -155,31 +155,6 @@ const Form: React.FC<Props> = ({ channels, guildID, onRefresh, guildInfo }) => {
                     variant="outlined"
                 />
                 <div className="flex flex-col gap-2 relative">
-                    {ShowRolesOption && (
-                        <div className="absolute bottom-[8.5rem] py-2 z-50 rounded-xl bg-white shadow-md border-2 right-0 left-0">
-                            {guildInfo.roles.map((role, id) => (
-                                <div
-                                    onClick={() => {
-                                        console.log(role);
-                                        let newData =
-                                            newsForm.description.replace(
-                                                /@$/gm,
-                                                `<@&${role.id}>`
-                                            );
-                                        setNewsForm((pre) => ({
-                                            ...pre,
-                                            description: newData,
-                                        }));
-                                    }}
-                                    className="cursor-pointer px-2 hover:bg-gray-300"
-                                    key={id}
-                                >
-                                    {role.name}
-                                </div>
-                            ))}
-                        </div>
-                    )}
-
                     <div className="flex justify-between">
                         <div className={css(tw`flex gap-2`)}>
                             <Badge
@@ -198,6 +173,17 @@ const Form: React.FC<Props> = ({ channels, guildID, onRefresh, guildInfo }) => {
                                 }}
                             >
                                 @user
+                            </Badge>
+                            <Badge
+                                className="badge text-bg-primary"
+                                onClick={async () => {
+                                    let result =
+                                        await navigator.clipboard.readText();
+                                    console.log(result);
+                                    Mention(`<@${result}>`);
+                                }}
+                            >
+                                @role
                             </Badge>
                         </div>
                         <div className={css(tw`flex gap-2`)}>
