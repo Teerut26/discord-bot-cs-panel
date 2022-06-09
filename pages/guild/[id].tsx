@@ -85,7 +85,7 @@ const Guild: React.FC<Props> = ({ guildID }) => {
         ${tw`text-xl items-center flex gap-2 font-bold`}
     `;
     const Container = styled.div`
-        ${tw`flex flex-col w-full gap-3 w-full md:w-1/2 border-2 p-3 `}
+        ${tw`flex flex-col w-full gap-3 w-full border-2 p-3 `}
     `;
 
     return (
@@ -146,7 +146,7 @@ const Guild: React.FC<Props> = ({ guildID }) => {
                                     ""
                                 )}
                             </Container>
-                            <Container>
+                            <Container className="w-full max-w-md">
                                 <Title className="flex items-center gap-2">
                                     ประวัติการส่ง{" "}
                                     {loading ? (
