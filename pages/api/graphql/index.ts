@@ -270,39 +270,7 @@ const resolvers = {
         },
     },
     Mutation: {
-        addNews: async (parent: any, args: any) => {
-            let NewsCollection = await db.collection("news");
-            console.log(args.news.imageURL);
-
-            let newEmbed = new MessageEmbed();
-            newEmbed.setTitle(args.news.title);
-            newEmbed.setDescription(args.news.description);
-
-            let res = await new Discord().sendMessage(
-                [newEmbed],
-                args.news.imageURL,
-                args.news.channelID
-            );
-            console.log(JSON.parse(JSON.stringify(res)));
-
-            await NewsCollection.add({
-                messageID: res.id,
-                channelID: args.news.channelID,
-                guildID: args.news.guildID,
-                embeds: res.embeds.map((item) => ({
-                    type: item.type,
-                    title: item.title,
-                    description: item.description,
-                })),
-                timestamp: new Date().toJSON(),
-            });
-
-            return {
-                description: args.news.description,
-                channelID: args.news.channelID,
-                title: args.news.title,
-            };
-        },
+       
         deleteNews: async (parent: any, args: any) => {
             let NewsCollection = await db.collection("news").doc(args.id);
             let result = (await (await NewsCollection.get()).data()) as News;
