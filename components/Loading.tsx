@@ -8,7 +8,9 @@ const Loading: React.FC<Props> = () => {
     return (
         <>
             <div className="absolute top-0 bottom-0 right-0 left-0 flex items-center justify-center">
-                <FontAwesomeIcon icon={faSpinner} spin size="3x" />
+                <div className="spinner-border w-[5rem] h-[5rem]" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </div>
             </div>
         </>
     );

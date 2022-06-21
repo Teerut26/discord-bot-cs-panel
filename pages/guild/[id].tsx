@@ -124,12 +124,12 @@ const Guild: React.FC<Props> = ({ guildID }) => {
                                 </Title>
                             </div>
                         </div>
-                        <div className="px-3">
+                        {/* <div className="px-3">
                             <div className="flex flex-wrap justify-center gap-3 w-full border-2 p-3 ">
                                 <MemberList id="MemberList" guildID={guildID!} />
                                 <RoleList id="RoleList" roles={guildInfo?.roles!} />
                             </div>
-                        </div>
+                        </div> */}
                         <div className="flex flex-col md:flex-row gap-3 p-3 w-full">
                             <Container>
                                 <Title>เพิ่มข่าว</Title>

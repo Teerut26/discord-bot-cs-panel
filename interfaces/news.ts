@@ -1,4 +1,4 @@
-import { Message } from "discord.js";
+import { Message, MessageAttachment, User } from "discord.js";
 
 export interface Embed {
     type: string;
@@ -11,8 +11,10 @@ export interface News {
     title: string;
     channelID?: string;
     messageID?: string;
+    author? : User 
     guildID?: string;
     embeds?: Embed[];
+    attachments?: MessageAttachment[];
     message?: Message;
     description: string;
     timestamp?: string;

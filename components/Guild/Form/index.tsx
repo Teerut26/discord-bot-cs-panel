@@ -6,13 +6,16 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button, TextField } from "@mui/material";
 import { ChannelAPI } from "interfaces/ChannelAPI";
 import { News } from "interfaces/news";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import tw from "twin.macro";
 import { useLocalStorage } from "usehooks-ts";
-import SelectChannel from "../SelectChannel";
 import { v4 as uuidv4 } from "uuid";
 import { GuildResponse } from "interfaces/GuildResponse";
+import SelectChannel from "@/components/SelectChannel";
+import InputFormComponent from "./input-form.component";
+import { Tabselect } from "interfaces/types/tabselect.type";
+import axios from "axios";
 
 const Description = styled.textarea``;
 const Badge = styled.div`
@@ -30,13 +33,14 @@ interface Props {
 }
 
 interface ImageURL {
-    url: string;
+    url?: string;
+    file?: File;
     uuid?: string;
 }
 
 const Form: React.FC<Props> = ({ channels, guildID, onRefresh, guildInfo }) => {
     const [SelectChannelKey, setSelectChannelKey] = useState(0);
-    const [ImageUrlList, setImageUrlList] = useLocalStorage<ImageURL[]>(`newsForm@ImageUrl@${guildID}`,[]);
+    const [ImageUrlList, setImageUrlList] = useState<ImageURL[]>([]);
     const [newsForm, setNewsForm] = useLocalStorage<News>(
         `newsForm@${guildID}`,
         {
@@ -51,53 +55,53 @@ const Form: React.FC<Props> = ({ channels, guildID, onRefresh, guildInfo }) => {
 
     const [ShowRolesOption, setShowRolesOption] = useState<boolean>(false);
 
-    const [addNews] = useMutation(gql`
-        mutation ($addNews: AddNewsInput!) {
-            addNews(news: $addNews) {
-                title
-                description
-                timestamp
-            }
-        }
-    `);
-
     const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (
-            !ChannelSelect ||
-            newsForm.title.length === 0 ||
-            newsForm.description.length === 0
-        ) {
-            return toast.error("กรอกข้อมูลไม่ครบ");
-        }
 
-        ChannelSelect.map(async (channel) => {
+        ChannelSelect!.map(async (channel) => {
             let keyToast = toast.loading(`กำลังส่ง ${channel.name}`);
-            let images = ImageUrlList.map((item) => item.url).filter(
-                (item) => item.length !== 0
-            );
-            await addNews({
-                variables: {
-                    addNews: {
-                        title: newsForm.title,
-                        guildID: guildID,
-                        channelID: channel.id,
-                        description: newsForm.description,
-                        imageURL: images,
-                    },
-                },
-            });
-            toast.success(`สำเร็จ ${channel.name}`, {
-                id: keyToast,
-            });
+
+            try {
+                let dataForm = new FormData();
+                dataForm.append("channelID", channel.id);
+                dataForm.append("title", newsForm.title);
+                dataForm.append("description", newsForm.description);
+                dataForm.append("guildID", guildID);
+
+                let imageURLs: string[] = [];
+
+                ImageUrlList.map(async (image) => {
+                    if (image.file) {
+                        dataForm.append("file", image.file);
+                    } else if (image.url) {
+                        imageURLs.push(image.url);
+                    }
+                });
+
+                console.log(JSON.stringify(imageURLs));
+
+                dataForm.append('imageURL', JSON.stringify(imageURLs).toString());
+
+                let res = await axios({
+                    method: "post",
+                    url: "/api/upload",
+                    data: dataForm,
+                });
+
+                toast.success(`สำเร็จ ${channel.name}`, {
+                    id: keyToast,
+                });
+
+                console.log(res.data);
+            } catch (error: any) {
+                toast.error(`ผิดพลาด ${error.message}`, {
+                    id: keyToast,
+                });
+            }
         });
         setTimeout(() => {
             if (onRefresh) return onRefresh();
         }, 1000);
-        // setNewsForm({
-        //     title: "",
-        //     description: "",
-        // });
     };
 
     const Mention = (text: string) => {
@@ -109,10 +113,23 @@ const Form: React.FC<Props> = ({ channels, guildID, onRefresh, guildInfo }) => {
 
     const handleFormChange = (
         index: number,
-        event: React.ChangeEvent<HTMLInputElement>
+        isFile: boolean,
+        event: React.ChangeEvent<HTMLInputElement>,
+        type: Tabselect
     ) => {
+        let fileList = event.target.files;
+
         let data = [...ImageUrlList];
-        data[index].url = event.target.value;
+
+        if (type === "file") {
+            if (!fileList) return;
+            data[index].file = fileList[0];
+            data[index].url = undefined;
+        } else {
+            data[index].url = event.target.value;
+            data[index].file = undefined;
+        }
+
         setImageUrlList(data);
     };
 
@@ -122,14 +139,6 @@ const Form: React.FC<Props> = ({ channels, guildID, onRefresh, guildInfo }) => {
         );
         setImageUrlList(oldDataWithoutSelf);
     };
-
-    useEffect(() => {
-        console.log(
-            ImageUrlList.map((item) => item.url).filter(
-                (item) => item.length !== 0
-            )
-        );
-    }, [ImageUrlList]);
 
     return (
         <>
@@ -221,22 +230,24 @@ const Form: React.FC<Props> = ({ channels, guildID, onRefresh, guildInfo }) => {
                             <FontAwesomeIcon icon={faPlus} /> เพิ่มรูปภาพ
                         </Badge>
                     </div>
-                    {ImageUrlList.map((item, id) => (
-                        <div className={css(tw`flex gap-2`)}>
-                            <input
-                                className="form-control"
-                                type="text"
-                                value={item.url}
-                                placeholder="Image URL"
-                                onChange={(e) => handleFormChange(id, e)}
-                            />
-                            <div
-                                onClick={() => deleteINPUT(item)}
-                                className="btn btn-danger"
-                            >
-                                ลบ
-                            </div>
+                    {ImageUrlList.length > 0 ? (
+                        <div className="text-danger font-bold">
+                            * ถ้าคุณกดเปลี่ยนชนิดการอัพโหลด Form จะ Reset
                         </div>
+                    ) : (
+                        ""
+                    )}
+
+                    {ImageUrlList.map((item, id) => (
+                        <InputFormComponent
+                            key={id}
+                            handleFormChange={(...agrs) =>
+                                handleFormChange(...agrs)
+                            }
+                            deleteINPUT={deleteINPUT}
+                            id={id}
+                            item={item}
+                        />
                     ))}
                 </div>
 
